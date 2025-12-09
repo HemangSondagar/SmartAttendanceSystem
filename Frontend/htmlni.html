@@ -1,0 +1,50 @@
+<div class="card">
+    <h2>Available Study Materials</h2>
+    <div class="controls">
+        <select id="courseSelectDownload">
+            <option value="course1">Course 1</option>
+            <option value="course2">Course 2</option>
+        </select>
+        <select id="semesterSelectDownload">
+            <option value="sem1">Semester 1</option>
+            <option value="sem2">Semester 2</option>
+        </select>
+        <select id="subjectSelectDownload">
+            <option value="math">Math</option>
+            <option value="cs">Computer Science</option>
+        </select>
+        <select id="sectionSelectDownload">
+            <option value="sectionA">Section A</option>
+            <option value="sectionB">Section B</option>
+        </select>
+        <button onclick="fetchMaterials()">Fetch Materials</button>
+    </div>
+    <div id="materialsList"></div>
+</div>
+
+<script>
+    async function fetchMaterials() {
+        const course = document.getElementById('courseSelectDownload').value;
+        const semester = document.getElementById('semesterSelectDownload').value;
+        const subject = document.getElementById('subjectSelectDownload').value;
+        const section = document.getElementById('sectionSelectDownload').value;
+
+        const response = await fetch(`/get_material/?course=${course}&semester=${semester}&subject=${subject}&section=${section}`);
+        const result = await response.json();
+
+        const materialsList = document.getElementById('materialsList');
+        materialsList.innerHTML = '';  // Clear previous list
+
+        if (result.materials && result.materials.length) {
+            result.materials.forEach(file => {
+                const fileLink = document.createElement('a');
+                fileLink.href = `/download/${file}`;
+                fileLink.textContent = file;
+                fileLink.style.display = 'block';
+                materialsList.appendChild(fileLink);
+            });
+        } else {
+            materialsList.textContent = 'No materials available.';
+        }
+    }
+</script>

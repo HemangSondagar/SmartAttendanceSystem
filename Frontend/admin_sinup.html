@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Signup - Smart Attendance System</title>
+
+<style>
+body {font-family:'Segoe UI'; background:linear-gradient(135deg,#764ba2,#667eea);
+height:100vh; display:flex; align-items:center; justify-content:center;}
+
+.box {
+    background:white; padding:30px; border-radius:20px;
+    width:100%; max-width:420px; box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+h2{text-align:center; margin-bottom:20px; color:#333;}
+input{
+    width:100%; padding:12px; border-radius:10px;
+    border:2px solid #eee; margin-bottom:15px;
+}
+button{
+    width:100%; padding:15px; border:none; border-radius:10px;
+    background:#667eea; color:white; font-size:18px; font-weight:bold;
+    cursor:pointer;
+}
+p{text-align:center;}
+a{color:#667eea; text-decoration:none;}
+.error{background:#ffdddd; padding:10px; border-radius:10px;
+margin-bottom:10px; color:#a00; display:none;}
+.success{background:#ddffdd; padding:10px; border-radius:10px;
+margin-bottom:10px; color:#080; display:none;}
+</style>
+</head>
+
+<body>
+<div class="box">
+
+    <h2>Create Admin Account</h2>
+
+    <div class="error" id="errorBox"></div>
+    <div class="success" id="successBox"></div>
+
+    <input type="text" id="name" placeholder="Full Name" required>
+    <input type="text" id="roll" placeholder="Roll Number" required>
+    <input type="password" id="pass" placeholder="Password" required>
+    <input type="password" id="passkey" placeholder="Admin Secret Key (2425102)" required>
+
+    <button onclick="signup()">Signup</button>
+
+    <p>Already have an account? <a href="admin_login.html">Login</a></p>
+
+</div>
+
+<script>
+async function signup() {
+
+    let name = document.getElementById("name").value;
+    let roll = document.getElementById("roll").value;
+    let pass = document.getElementById("pass").value;
+    let passkey = document.getElementById("passkey").value;
+
+    let formData = new FormData();
+    formData.append("name", name);
+    formData.append("roll_number", roll);
+    formData.append("password", pass);
+    formData.append("passkey", passkey);
+
+    try {
+        let res = await fetch("http://127.0.0.1:8000/signup", {
+            method: "POST",
+            body: formData
+        });
+
+        let data = await res.json();
+
+        if (!res.ok) {
+            document.getElementById("errorBox").innerText = data.detail;
+            document.getElementById("errorBox").style.display = "block";
+            return;
+        }
+
+        document.getElementById("successBox").innerText = "Account created successfully!";
+        document.getElementById("successBox").style.display = "block";
+
+        setTimeout(() => {
+            window.location.href = "admin_login.html";
+        }, 1500);
+
+    } catch (err) {
+        document.getElementById("errorBox").innerText = "Network error";
+        document.getElementById("errorBox").style.display = "block";
+    }
+}
+</script>
+
+</body>
+</html>

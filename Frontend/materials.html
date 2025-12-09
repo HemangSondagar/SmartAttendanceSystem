@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study Materials | SSCCS Bhavnagar</title>
+  <style>
+    * {margin:0; padding:0; box-sizing:border-box;}
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+
+    .navbar {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 15px 40px;
+      color:white;
+      position: sticky;
+      top:0;
+    }
+    .navbar h2 { font-size:1.5em; }
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 60px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    }
+
+    .materials {
+      margin-top: 30px;
+      display: none;
+    }
+    .materials h3 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+    }
+    .materials ul {
+      list-style: none;
+    }
+    .materials ul li {
+      padding: 10px;
+      background: #f0f4ff;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .materials ul li a {
+      text-decoration: none;
+      color: #2c3e50;
+      font-weight: 500;
+      flex: 1;
+      padding: 8px;
+      transition: background 0.2s;
+      border-radius: 4px;
+    }
+    .materials ul li a:hover {
+      background: #e0e7ff;
+    }
+    .download-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+    .file-info {
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+    .loading {
+      text-align: center;
+      color: #667eea;
+      padding: 20px;
+    }
+    .no-files {
+      text-align: center;
+      color: #999;
+      padding: 20px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="navbar">
+    <h2>📚 Study Materials</h2>
+    <div>
+      <a href="index.html">🏠 Home</a>
+      <a href="attendance_calendar.html">📅 Attendance</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Find Your Assignments & Materials</h1>
+    <div class="form-group">
+      <label for="stream">Select Stream:</label>
+      <select id="stream">
+        <option value="">--Select--</option>
+        <option value="BCA">BCA</option>
+        <option value="BScIT">B.Sc IT</option>
+        <option value="MCA">MCA</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="semester">Select Semester:</label>
+      <select id="semester">
+        <option value="">--Select--</option>
+        <option value="Sem1">Semester 1</option>
+        <option value="Sem2">Semester 2</option>
+        <option value="Sem3">Semester 3</option>
+        <option value="Sem4">Semester 4</option>
+        <option value="Sem5">Semester 5</option>
+        <option value="Sem6">Semester 6</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="subject">Select Subject:</label>
+      <select id="subject">
+        <option value="">--Select Stream and Semester First--</option>
+      </select>
+    </div>
+    <button onclick="showMaterials()">📁 Show Materials</button>
+
+    <div class="materials" id="materials">
+      <h3>Available Materials:</h3>
+      <ul id="materialList"></ul>
+    </div>
+  </div>
+
+  <script>
+    let materialsData = null;
+
+    // Make downloadFile globally accessible
+    window.downloadFile = async function(filePath, fileName) {
+      try {
+        // Try to fetch the file
+        const response = await fetch(filePath);
+        if (!response.ok) {
+          throw new Error('File not found');
+        }
+        
+        const blob = await response.blob(); //create file like object from the response
+        const url = window.URL.createObjectURL(blob);// built-in method to create URL for the blob object to download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } catch (error) {
+        console.error('Download error:', error);
+        // Fallback: open in new tab if download fails
+        window.open(filePath, '_blank');// to open file in new tab
+        alert('Download failed. File opened in new tab. You can save it manually.');
+      }
+    };
+
+    // Load material-list.json on page load
+    async function loadMaterialsData() {
+      // Try multiple sources: Backend API -> Local file -> Embedded data
+      const sources = [
+        'http://localhost:8001/material-list.json',  // Backend API // use when we want data from multiple sources
+        'material-list.json'  // Local file
+      ];
+      
+      for (const source of sources) {
+        try {
+          const response = await fetch(source);
+          if (response.ok) {
+            materialsData = await response.json();
+            console.log('Materials data loaded from:', source);
+            return Promise.resolve();
+          }
+        } catch (error) {
+          console.log('Failed to load from', source, error);
+          continue;
+        }
+      }
+      
+      // Fallback: Use embedded JSON data
+      try {
+        materialsData = {
+          "BCA": {
+            "1st": {
+              "Python Programming": [
+                "1.txt",
+                "Unit2.pdf",
+                "FullNotes.pdf"
+              ],
+              "Office Automation": [
+                "HTML.pdf",
+                "CSS.pdf"
+              ]
+            },
+            "2nd": {
+              "C Programming": [
+                "DBMS Unit1.pdf"
+              ]
+            }
+          },
+          "BScIT": {
+            "1st": {
+              "Artificial Intelligence": [
+                "AI Notes.pdf"
+              ]
+            }
+          },
+          "MCA": {
+            "1st": {
+              "Advanced Programming": [
+                "Notes.pdf"
+              ]
+            }
+          }
+        };
+        console.log('Using embedded materials data');
+        return Promise.resolve();
+      } catch (error) {
+        console.error('Error loading materials data:', error);
+        alert('Failed to load materials data. Please refresh the page.');
+        return Promise.reject(error);
+      }
+    }
+
+    // Map semester values to JSON keys
+    function getSemesterKey(semValue) {
+      const semMap = {
+        'Sem1': '1st',
+        'Sem2': '2nd',
+        'Sem3': '3rd',
+        'Sem4': '4th',
+        'Sem5': '5th',
+        'Sem6': '6th'
+      };
+      return semMap[semValue] || semValue;
+    }
+
+    // Use subject value directly (no mapping needed)
+    function getSubjectKey(subjectValue) {
+      return subjectValue;
+    }
+
+    // Get file icon based on extension
+    function getFileIcon(filename) {
+      const ext = filename.split('.').pop().toLowerCase();// it split the filename from . and pop() is used to get last element of array
+      const icons = {
+        'pdf': '📄',
+        'txt': '📝',
+        'doc': '📘',
+        'docx': '📘',
+        'ppt': '📊',
+        'pptx': '📊',
+        'xls': '📊',
+        'xlsx': '📊',
+        'jpg': '🖼️',
+        'jpeg': '🖼️',
+        'png': '🖼️'
+      };
+      return icons[ext] || '📁';
+    }
+
+
+    async function showMaterials() {
+      const stream = document.getElementById('stream').value;
+      const sem = document.getElementById('semester').value;
+      const subject = document.getElementById('subject').value;
+      const materialsDiv = document.getElementById('materials');
+      const list = document.getElementById('materialList');
+
+      if(!stream || !sem || !subject){
+        alert("Please select all fields!");
+        return;
+      }
+
+      // Load data if not already loaded
+      if (!materialsData) {
+        await loadMaterialsData();
+      }
+
+      materialsDiv.style.display = "block";
+      list.innerHTML = '<div class="loading">Loading files...</div>';
+
+      try {
+        // Get mapped keys
+        const semKey = getSemesterKey(sem);
+        const subjectKey = getSubjectKey(subject);
+
+        // Navigate through JSON structure
+        if (materialsData[stream] && materialsData[stream][semKey] && materialsData[stream][semKey][subjectKey]) {
+          const files = materialsData[stream][semKey][subjectKey];
+          
+          if (files.length === 0) {
+            list.innerHTML = '<div class="no-files">No files available for this selection.</div>';
+            return;
+          }
+
+          // Build file list with clickable links and download buttons
+          let html = '';
+          files.forEach(file => {
+            // Construct file path: materials/BCA/1st/Python Programming/1.txt
+            // Encode path components to handle spaces and special characters
+            const encodedPath = `materials/${encodeURIComponent(stream)}/${encodeURIComponent(semKey)}/${encodeURIComponent(subjectKey)}/${encodeURIComponent(file)}`;
+            //encodeURIComponent is used to encode special characters,space etc in URL it use other character instead of space and it is built-in function in javascript
+            const icon = getFileIcon(file);
+            html += `
+              <li>
+                <div class="file-info">
+                  <a href="${encodedPath}" target="_blank" title="Open file">${icon} ${file}</a>
+                </div>
+                <button onclick="downloadFile('${encodedPath}', '${file.replace(/'/g, "\\'")}')" class="download-btn" title="Download file">⬇️ Download</button>
+              </li>
+            `;
+          });
+          
+          list.innerHTML = html;
+        } else {
+          list.innerHTML = '<div class="no-files">No materials found for this selection. Please check if files exist in the materials folder.</div>';
+        }
+      } catch (error) {
+        console.error('Error displaying materials:', error);
+        list.innerHTML = '<div class="no-files">Error loading materials. Please try again.</div>';
+      }
+    }
+
+    // Update subject dropdown based on stream and semester
+    function updateSubjects() {
+      const stream = document.getElementById('stream').value;
+      const sem = document.getElementById('semester').value;
+      const subjectSelect = document.getElementById('subject');
+      
+      // Clear existing options
+      subjectSelect.innerHTML = '<option value="">--Select--</option>';
+      
+      // If stream or semester not selected, disable subject dropdown
+      if (!stream || !sem || !materialsData) {
+        subjectSelect.disabled = true;// used to make selection disabled 
+        subjectSelect.innerHTML = '<option value="">--Select Stream and Semester First--</option>';
+        return;
+      }
+      
+      // Enable subject dropdown
+      subjectSelect.disabled = false;
+      
+      // Get mapped semester key
+      const semKey = getSemesterKey(sem);
+      
+      // Get subjects for selected stream and semester
+      if (materialsData[stream] && materialsData[stream][semKey]) {
+        const subjects = Object.keys(materialsData[stream][semKey]);//outpu:["Python Programming", "Office Automation"],keys are the name of subjects it get object and return array of keys
+
+        
+        if (subjects.length === 0) {
+          subjectSelect.innerHTML = '<option value="">No subjects available</option>';
+          return;
+        }
+        
+        // Add subjects to dropdown
+        subjects.forEach(subject => {
+          const option = document.createElement('option');
+          option.value = subject;
+          option.textContent = subject;
+          subjectSelect.appendChild(option);
+        });
+      } else {
+        subjectSelect.innerHTML = '<option value="">No subjects available for this selection</option>';
+      }
+    }
+
+    // Add event listeners to stream and semester dropdowns
+    document.addEventListener('DOMContentLoaded', function() {
+      loadMaterialsData().then(() => {
+        // After data is loaded, set up event listeners
+        const streamSelect = document.getElementById('stream');
+        const semesterSelect = document.getElementById('semester');
+        
+        streamSelect.addEventListener('change', function() {
+          // Clear subject when stream changes
+          document.getElementById('subject').value = '';
+          updateSubjects();
+        });
+        
+        semesterSelect.addEventListener('change', function() {
+          // Clear subject when semester changes
+          document.getElementById('subject').value = '';
+          updateSubjects();
+        });
+        
+        // If both stream and semester are already selected, update subjects
+        if (streamSelect.value && semesterSelect.value) {
+          updateSubjects();
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

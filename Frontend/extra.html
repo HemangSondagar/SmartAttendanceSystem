@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Attendance</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fb; color: #2c3e50; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    h2 { font-size: 20px; margin-bottom: 8px; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 20px; }
+    .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .controls input, .controls button { padding: 10px 12px; border-radius: 8px; border: 2px solid #e9ecef; font-size: 14px; }
+    .controls button { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; cursor: pointer; }
+    .controls button:hover { filter: brightness(0.95); }
+    .legend { display: flex; gap: 16px; align-items: center; margin-top: 10px; }
+    .badge { display: inline-block; padding: 6px 10px; border-radius: 20px; font-size: 12px; color: white; }
+    .present { background: #27ae60; }
+    .partial { background: #f39c12; }
+    .absent { background: #e74c3c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 12px; border-bottom: 1px solid #ecf0f1; text-align: left; }
+    th { background: #fafbff; font-weight: 700; }
+    .status-cell { font-weight: 700; }
+    .pill { border-radius: 999px; padding: 6px 10px; color: white; display: inline-block; font-size: 12px; }
+    .pill.present { background: #2ecc71; }
+    .pill.partial { background: #f39c12; }
+    .pill.absent { background: #e74c3c; }
+    .lectures { display: flex; gap: 6px; flex-wrap: wrap; }
+    .lec { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; }
+    .lec.p { background: #2ecc71; }
+    .lec.a { background: #e74c3c; }
+    .empty { opacity: 0.5; background: #bdc3c7; }
+    .summary { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+    .summary .card { flex: 1; min-width: 180px; text-align: center; }
+    .muted { color: #6c757d; font-size: 12px; }
+    .link { color: #667eea; text-decoration: none; font-weight: 600; }
+    ul { list-style: none; }
+    .holiday-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #eee; }
+    .holiday-item button { background: #e74c3c; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Attendance Card -->
+    <div class="card">
+      <h1>Admin Dashboard - Attendance by Date</h1>
+      <div class="controls">
+        <input type="date" id="datePicker" />
+        <button onclick="loadData()">Load Attendance</button>
+        <a class="link" href="index.html">← Back to Home</a>
+      </div>
+      <div class="legend">
+        <span class="badge present">Present (all 6)</span>
+        <span class="badge partial">Partial</span>
+        <span class="badge absent">Absent</span>
+      </div>
+      <p class="muted" style="margin-top:8px;">Select a date to view all students and their per-lecture status.</p>
+    </div>
+
+    <!-- Semester Settings -->
+    <div class="card">
+      <h2>Semester Settings</h2>
+      <div class="controls">
+        <input type="number" id="totalDays" placeholder="Total semester days" min="1" />
+        <button onclick="saveTotalDays()">Save Total Days</button>
+        <span id="totalDaysInfo" class="muted"></span>
+      </div>
+    </div>
+
+    <!-- Manage Holidays -->
+    <div class="card">
+      <h2>Manage Holidays</h2>
+      <div class="controls">
+        <input type="date" id="holidayDate" />
+        <button onclick="addHoliday()">Add Holiday</button>
+        <button onclick="removeHoliday()">Remove Holiday</button>
+      </div>
+      <div style="margin-top:10px;">
+        <h3 style="margin-bottom:6px;">Holiday List</h3>
+        <ul id="holidayList"></ul>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="card" id="summaryCard" style="display:none;">
+      <h2>Summary</h2>
+      <div class="summary">
+        <div class="card"><div id="sumPresent" style="font-size:28px;font-weight:800;">0</div><div class="muted">Present</div></div>
+        <div class="card"><div id="sumPartial" style="font-size:28px;font-weight:800;">0</div><div class="muted">Partial</div></div>
+        <div class="card"><div id="sumAbsent" style="font-size:28px;font-weight:800;">0</div><div class="muted">Absent</div></div>
+        <div class="card"><div id="sumTotal" style="font-size:28px;font-weight:800;">0</div><div class="muted">Total</div></div>
+        <div class="card"><div id="sumRequirement" style="font-size:20px;font-weight:700;">-</div><div class="muted">80% Requirement Helper</div></div>
+      </div>
+    </div>
+
+    <!-- Attendance Table -->
+    <div class="card">
+      <table id="table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Roll Number</th>
+            <th>Status</th>
+            <th>Lectures (L1..L6)</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="4" class="muted">Select a date and click Load Attendance.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Absent Without Leave -->
+    <div class="card">
+      <h2>Absent Without Leave Report</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Roll No</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody id="leaveTbody">
+          <tr><td colspan="3" class="muted">Select a date to view</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = 'http://localhost:8000';
+
+    function formatDateToDDMMYYYY(dateStr) {
+      const d = new Date(dateStr);
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      return `${dd}_${mm}_${yyyy}`;
+    }
+
+    async function initSettings() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/settings/total_days`);
+        const data = await res.json();
+        if (data.total_days) {
+          document.getElementById('totalDays').value = data.total_days;
+          document.getElementById('totalDaysInfo').textContent = `Saved: ${data.total_days} days`;
+        }
+        await refreshHolidays();
+      } catch (e) { /* ignore */ }
+    }
+
+    async function saveTotalDays() {
+      const v = parseInt(document.getElementById('totalDays').value, 10);
+      if (!v || v <= 0) { alert('Enter total semester days'); return; }
+      const form = new FormData(); form.append('total_days', v);
+      const res = await fetch(`${API_BASE_URL}/admin/settings/total_days`, { method:'POST', body: form });
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('totalDaysInfo').textContent = `Saved: ${data.total_days} days`;
+        computeRequirement();
+      } else { alert(data.detail || 'Failed to save'); }
+    }
+
+    async function addHoliday() {
+      const dateInput = document.getElementById('holidayDate').value;
+      if (!dateInput) { alert('Select a date'); return; }
+      const dateKey = formatDateToDDMMYYYY(dateInput);
+      const form = new FormData(); form.append('date', dateKey);
+      const res = await fetch(`${API_BASE_URL}/admin/holidays/add`, { method:'POST', body: form });
+      const data = await res.json(); if (!res.ok) { alert(data.detail || 'Failed'); return; }
+      await refreshHolidays();
+    }
+
+    async function removeHoliday() {
+      const dateInput = document.getElementById('holidayDate').value;
+      if (!dateInput) { alert('Select a date'); return; }
+      const dateKey = formatDateToDDMMYYYY(dateInput);
+      const form = new FormData(); form.append('date', dateKey);
+      const res = await fetch(`${API_BASE_URL}/admin/holidays/remove`, { method:'POST', body: form });
+      const data = await res.json(); if (!res.ok) { alert(data.detail || 'Failed'); return; }
+      await refreshHolidays();
+    }
+
+    async function refreshHolidays() {
+      const res = await fetch(`${API_BASE_URL}/admin/holidays`);
+      const data = await res.json();
+      const ul = document.getElementById('holidayList');
+      ul.innerHTML = '';
+      (data.holidays || []).forEach(h => {
+        const li = document.createElement('li');
+        li.className = 'holiday-item';
+        li.innerHTML = `<span>${h}</span>`;
+        ul.appendChild(li);
+      });
+    }
+
+    function computeRequirement() {
+      const total = parseInt(document.getElementById('totalDays').value || '0', 10);
+      if (!total || total <= 0) { document.getElementById('sumRequirement').textContent = '-'; return; }
+      const present = parseInt(document.getElementById('sumPresent').textContent || '0', 10);
+      const required = Math.ceil(total * 0.8);
+      const need = Math.max(0, required - present);
+      document.getElementById('sumRequirement').textContent = `Need ${need} more days to reach 80% of ${total}`;
+    }
+
+    async function loadData() {
+      const dateInput = document.getElementById('datePicker').value;
+      if (!dateInput) { alert('Please select a date'); return; }
+      const dateKey = formatDateToDDMMYYYY(dateInput);
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/admin/attendance_by_date?date=${dateKey}`);
+        const data = await res.json();
+        if (!res.ok) {
+          tbody.innerHTML = `<tr><td colspan='4'>Error: ${data.detail || 'Failed to load data'}</td></tr>`;
+          return;
+        }
+        const students = data.students || [];
+        renderTable(students);
+        renderSummary(students);
+        computeRequirement();
+
+        // fetch absent without leave
+        const leaveRes = await fetch(`${API_BASE_URL}/admin/absent_without_leave?date=${dateKey}`);
+        const leaveData = await leaveRes.json();
+        renderLeaveTable(leaveData.students || []);
+
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan='4'>Network error.</td></tr>`;
+      }
+    }
+
+    function renderSummary(students) {
+      const present = students.filter(s => s.status === 'present').length;
+      const partial = students.filter(s => s.status === 'partial').length;
+      const absent = students.filter(s => s.status === 'absent').length;
+      const total = students.length;
+      document.getElementById('sumPresent').textContent = present;
+      document.getElementById('sumPartial').textContent = partial;
+      document.getElementById('sumAbsent').textContent = absent;
+      document.getElementById('sumTotal').textContent = total;
+      document.getElementById('summaryCard').style.display = 'block';
+    }
+
+    function renderTable(students) {
+      const tbody = document.getElementById('tbody');
+      if (students.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="muted">No records for this date.</td></tr>';
+        return;
+      }
+      let i = 1;
+      tbody.innerHTML = '';
+      for (const s of students) {
+        const lec = s.lectures || {};
+        const cells = [];
+        for (let k = 1; k <= 6; k++) {
+          const val = String(lec[`l_${k}`] || 'a').toLowerCase();
+          const cls = val === 'p' ? 'p' : 'a';
+          cells.push(`<div class="lec ${cls}">${k}</div>`);
+        }
+        const pillClass = s.status === 'present' ? 'present' : (s.status === 'partial' ? 'partial' : 'absent');
+        tbody.innerHTML += `
+          <tr>
+            <td>${i++}</td>
+            <td>${s.roll_number || ''}</td>
+            <td class="status-cell"><span class="pill ${pillClass}">${s.status.toUpperCase()}</span></td>
+            <td><div class="lectures">${cells.join('')}</div></td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderLeaveTable(students) {
+      const tbody = document.getElementById('leaveTbody');
+      tbody.innerHTML = '';
+      if (students.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="muted">All absent students submitted leave reports</td></tr>';
+        return;
+      }
+      let i = 1;
+      for (const s of students) {
+        tbody.innerHTML += `
+          <tr>
+            <td>${i++}</td>
+            <td>${s.roll_number}</td>
+            <td>${s.name}</td>
+          </tr>`;
+      }
+    }
+
+    // init
+    initSettings();
+  </script>
+</body>
+</html>

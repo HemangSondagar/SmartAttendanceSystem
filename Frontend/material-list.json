@@ -1,0 +1,39 @@
+{
+  "BCA": {
+    "1st": {
+      "Python Programming": [
+        "1.txt",
+        "Unit2.pdf",
+        "FullNotes.pdf"
+      ],
+      "Office Automation": [
+        "HTML.pdf",
+        "CSS.pdf"
+      ]
+     },
+    "2nd": {
+      "C Programming": [
+        "c Unit1.pdf"
+      ]
+    },
+    "3rd": {
+      "C++ Programming": [
+        "c++ Unit1.pdf"
+      ]
+    }
+  },
+  "BScIT": {
+    "1st": {
+      "C++ Programming": [
+        "c++ Notes.pdf"
+      ]
+    }
+  },
+  "MCA": {
+    "1st": {
+      "Advanced Programming": [
+        "Notes.pdf"
+      ]
+    }
+  }
+}

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SSCCS Bhavnagar | Smart Attendance System</title>
+  <style>
+    * {margin:0; padding:0; box-sizing:border-box;}
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    /* Navbar */
+    .navbar {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 15px 30px;
+      color:white;
+      position: sticky;
+      top:0;
+      z-index:1000;
+    }
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .navbar h2 {
+      font-size:1.5em;
+    }
+    .nav-links {
+      display:flex;
+      gap:20px;
+    }
+    .nav-links a {
+      color:white;
+      text-decoration:none;
+      font-weight:600;
+      transition:color 0.3s;
+    }
+    .nav-links a:hover {
+      color:#ffdd57;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -260px;
+      width: 260px;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 60px 20px;
+      transition: left 0.4s ease;
+      z-index: 2000;
+      box-shadow: 4px 0 10px rgba(0,0,0,0.2);
+    }
+    .sidebar.active {
+      left: 0;
+    }
+    .sidebar h3 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.4em;
+      border-bottom: 2px solid rgba(255,255,255,0.3);
+      padding-bottom: 10px;
+    }
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      margin: 15px 0;
+      padding: 10px;
+      border-radius: 6px;
+      transition: background 0.3s;
+      font-weight: 500;
+    }
+    .sidebar a:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Hamburger Icon */
+    .hamburger {
+      display: block;
+      cursor: pointer;
+      font-size: 1.8em;
+      background: rgba(255,255,255,0.2);
+      padding: 5px 12px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+    .hamburger:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      z-index: 1500;
+    }
+    .overlay.active {
+      display: block;
+    }
+
+    /* Hero Banner */
+    .hero {
+      background: url("https://ssccs.ac.in/wp-content/uploads/2024/05/college-building.jpg") center/cover no-repeat;
+      height: 350px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:white;
+      position:relative;
+    }
+    .hero::after {
+      content:"";
+      position:absolute;
+      top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.5);
+    }
+    .hero-content {
+      position:relative;
+      z-index:2;
+    }
+    .hero-content h1 {
+      font-size:2.5em;
+      margin-bottom:10px;
+    }
+
+    /* News Bar */
+    .newsbar {
+      background:#2c3e50;
+      color:white;
+      padding:10px 20px;
+      font-size:14px;
+      white-space:nowrap;
+      overflow:hidden;
+    }
+    .newsbar a {
+      color:#ffdd57;
+      font-weight:bold;
+      text-decoration:none;
+      margin-left:15px;
+    }
+    .newsbar a:hover {
+      text-decoration:underline;
+    }
+
+    /* Features Section */
+    .features {
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+      gap:20px;
+      padding:40px;
+    }
+    .feature-card {
+      background:white;
+      border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+      padding:20px;
+      text-align:center;
+      transition:transform 0.3s;
+    }
+    .feature-card:hover {
+      transform:translateY(-5px);
+    }
+    .feature-icon {
+      font-size:2em;
+      margin-bottom:10px;
+    }
+    .feature-title {
+      font-weight:bold;
+      margin-bottom:8px;
+      color:#2c3e50;
+    }
+    .feature-desc {
+      color:#555;
+      font-size:14px;
+    }
+
+    /* Footer */
+    footer {
+      background:#34495e;
+      color:white;
+      text-align:center;
+      padding:15px;
+      margin-top:30px;
+    }
+
+    @media (max-width:768px) {
+      .nav-links {display:none;}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <h3>📚 Quick Menu</h3>
+    <a href="#">🏠 Home</a>
+    <a href="leave-report.html ">📸 leave-report</a>
+    <a href="#">🏛️ Departments</a>
+    <a href="attendance_calendar.html">📅 Attendance</a>
+    <a href="materials.html">📚 Study Materials</a>
+    <a href="#">📞 Contact</a>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="navbar-left">
+      <div class="hamburger" id="hamburger">☰</div>
+      <h2>SSCCS Bhavnagar</h2>
+    </div>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="leave-report.html">Leave-report</a>
+      <a href="department.html">Departments</a>
+      <a href="attendance_calendar.html">Attendance</a>
+      <a href="materials.html">Material</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <h1>Shree Swaminarayan College of Computer Science</h1>
+      <p>Bhavnagar - Smart Attendance & Digital Learning</p>
+    </div>
+  </div>
+
+  <!-- News Bar -->
+  <div class="newsbar">
+    📢 Latest Updates: Admissions Open for 2025 | Internal Exams from Sept 5 | Placement drive coming soon...
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon">🎓</div>
+      <div class="feature-title">Our Vision</div>
+      <div class="feature-desc">Empowering students with modern education and values.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💻</div>
+      <div class="feature-title">Departments</div>
+      <div class="feature-desc">BCA, B.Sc. IT, PGDCA, MCA with strong practical knowledge.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Smart Attendance</div>
+      <div class="feature-desc">Track student presence through AI powered system.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📞</div>
+      <div class="feature-title">Contact Us</div>
+      <div class="feature-desc">For admission or support: info@ssccs.ac.in</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    © 2025 Shree Swaminarayan College of Computer Science, Bhavnagar. All rights reserved.
+  </footer>
+
+  <script>
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    const hamburger = document.getElementById("hamburger");
+
+    hamburger.addEventListener("click", () => {
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    });
+
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SSCCS Bhavnagar | Smart Attendance System</title>
+
+  <style>
+    * {margin:0; padding:0; box-sizing:border-box;}
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+
+    /* Navbar */
+    .navbar {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      padding: 12px 30px;
+      color:white;
+      position: sticky;
+      top:0;
+      z-index:1000;
+    }
+    .navbar-left {
+      display:flex;
+      align-items:center;
+      gap:15px;
+    }
+    .navbar-left img {
+      height:50px;
+      border-radius:8px;
+    }
+    .navbar h2 { font-size:1.4em; }
+    .nav-links { display:flex; gap:20px; }
+    .nav-links a {
+      color:white; text-decoration:none;
+      font-weight:600;
+      transition:0.3s;
+    }
+    .nav-links a:hover { color:#ffdd57; }
+
+    /* Sidebar */
+    .sidebar {
+      position:fixed; top:0; left:-260px;
+      width:260px; height:100%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color:white; padding:60px 20px;
+      transition:0.4s; z-index:2000;
+    }
+    .sidebar.active { left:0; }
+    .sidebar h3 { text-align:center; margin-bottom:25px; }
+    .sidebar a {
+      display:block; padding:12px;
+      text-decoration:none; color:white;
+      border-radius:6px; margin:8px 0;
+      transition:0.3s;
+    }
+    .sidebar a:hover { background:rgba(255,255,255,0.25); }
+
+    /* Overlay */
+    .overlay {
+      position:fixed; top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.4);
+      display:none; z-index:1500;
+    }
+    .overlay.active { display:block; }
+
+    /* Hamburger */
+    .hamburger {
+      cursor:pointer; font-size:1.8em;
+      background:rgba(255,255,255,0.25);
+      padding:5px 12px; border-radius:6px;
+      transition:0.3s;
+    }
+    .hamburger:hover { background:rgba(255,255,255,0.4); }
+
+    /* Hero */
+    .hero {
+      background:url("https://ssccs.ac.in/wp-content/uploads/2024/05/college-building.jpg") center/cover no-repeat;
+      height:350px; display:flex; align-items:center;
+      justify-content:center; text-align:center;
+      color:white; position:relative;
+    }
+    .hero::after {
+      content:""; position:absolute;
+      top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.55);
+    }
+    .hero-content { position:relative; z-index:1; animation: fadeIn 1.5s ease; }
+    @keyframes fadeIn { from{opacity:0; transform:translateY(25px);} to{opacity:1;} }
+
+    /* Image Slider */
+    .slider {
+      width:100%; height:260px; overflow:hidden;
+      position:relative; margin:30px 0;
+    }
+    .slides {
+      display:flex; width:400%;
+      animation: slide 18s infinite;
+      display: cover;
+    }
+    .slides img { width:100%; height:260px; object-fit:cover; }
+    @keyframes slide {
+      0% { margin-left:0; }
+      25% { margin-left:-100%; }
+      50% { margin-left:-200%; }
+      75% { margin-left:-300%; }
+      100% { margin-left:0; }
+    }
+
+    /* Features */
+    .features {
+      padding:40px 30px; display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+      gap:25px;
+    }
+    .feature-card {
+      background:white; border-radius:12px;
+      padding:25px; text-align:center;
+      box-shadow:0 4px 14px rgba(0,0,0,0.12);
+      transition:0.35s;
+    }
+    .feature-card:hover { transform:translateY(-6px) scale(1.02); }
+    .feature-icon { font-size:2.4em; margin-bottom:10px; }
+
+    footer {
+      background:#34495e; color:white;
+      text-align:center; padding:15px; margin-top:25px;
+    }
+
+    @media(max-width:768px){ .nav-links{display:none;} }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <h3>📚 Quick Menu</h3>
+    <a href="#">🏠 Home</a>
+    <a href="leave-report.html">📸 Leave Report</a>
+    <a href="#">🏛️ Departments</a>
+    <a href="attendance_calendar.html">📅 Attendance</a>
+    <a href="materials.html">📚 Study Materials</a>
+    <a href="#">📞 Contact</a>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="navbar-left">
+      <div class="hamburger" id="hamburger">☰</div>
+      <img src="logo.png" alt="College Logo" />
+      <h2>SSCCS Bhavnagar</h2>
+    </div>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="leave-report.html">Leave Report</a>
+      <a href="department.html">Departments</a>
+      <a href="attendance_calendar.html">Attendance</a>
+      <a href="materials.html">Material</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <h1>Shree Swaminarayan College of Computer Science</h1>
+      <p>Bhavnagar - Smart AI Attendance & Digital Learning</p>
+    </div>
+  </div>
+
+  <!-- Image Slider -->
+  <div class="slider">
+    <div class="slides">
+      <img src="data:image/jpeg;base64,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">
+      <img src="https://ssccs.ac.in/wp-content/uploads/2024/05/computer-lab.jpg">
+      <img src="https://ssccs.ac.in/wp-content/uploads/2024/05/students.jpg">
+      <img src="https://ssccs.ac.in/wp-content/uploads/2024/05/seminar.jpg">
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon">🎓</div>
+      <h3>Our Vision</h3>
+      <p>Empowering students with modern education & values.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💻</div>
+      <h3>Departments</h3>
+      <p>BCA, B.Sc IT, PGDCA, MCA with strong practical knowledge.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Smart Attendance</h3>
+      <p>Track student presence through AI powered system.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📞</div>
+      <h3>Contact Us</h3>
+      <p>Admission & Support: info@ssccs.ac.in</p>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 Shree Swaminarayan College of Computer Science, Bhavnagar. All rights reserved.
+  </footer>
+
+  <script>
+    const hamburger = document.getElementById("hamburger");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    hamburger.addEventListener("click", () => {
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    });
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Attendance</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Segoe UI',sans-serif;background:#f5f7fb;padding:20px;color:#2c3e50;}
+        .container{max-width:1200px;margin:auto;}
+        .card{background:#fff;border-radius:12px;box-shadow:0 10px 20px rgba(0,0,0,0.08);padding:20px;margin-bottom:20px;}
+        .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:10px;}
+        .controls input,button{padding:10px 12px;border-radius:8px;font-size:14px;}
+        button{background:linear-gradient(135deg,#667eea,#764ba2);border:none;color:white;cursor:pointer;}
+        button:hover{filter:brightness(0.92);}
+        table{width:100%;border-collapse:collapse;margin-top:20px;}
+        th,td{padding:12px;border-bottom:1px solid #ecf0f1;text-align:left;}
+        th{background:#fafbff;font-weight:700;}
+        .pill{padding:6px 10px;border-radius:20px;color:white;font-size:12px;}
+        .present{background:#2ecc71;}
+        .partial{background:#f39c12;}
+        .absent{background:#e74c3c;}
+        .lectures{display:flex;gap:6px;}
+        .lec{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;color:white;}
+        .lec.p{background:#2ecc71;}
+        .lec.a{background:#e74c3c;}
+        .summary-box{display:flex;gap:15px;margin-top:15px;flex-wrap:wrap;}
+        .summary-card{background:#667eea;color:white;border-radius:10px;flex:1;min-width:160px;text-align:center;padding:18px;}
+        .summary-card span{font-size:28px;font-weight:800;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="card">
+        <h1>Admin Dashboard – Attendance</h1>
+    </div>
+
+    <!-- Weekly holiday toggle -->
+    <div class="card">
+        <h2>Weekly Holiday Setting</h2>
+        <div class="controls">
+            <label><input type="checkbox" id="sundayCheck"> Sunday Holiday</label>
+            <button onclick="saveWeeklyHoliday()">Save</button>
+        </div>
+    </div>
+
+    <!-- Total semester days -->
+    <div class="card">
+        <h2>Semester Settings</h2>
+        <div class="controls">
+            <input type="number" id="totalDays" placeholder="Total semester days" min="1">
+            <button onclick="saveTotalDays()">Save</button>
+            <span id="totalDaysInfo"></span>
+        </div>
+    </div>
+
+    <!-------------------- NEW: Load attendance -------------------------->
+    <div class="card">
+        <h2>Attendance by Date</h2>
+        <div class="controls">
+            <input type="date" id="datePicker">
+            <button onclick="loadData()">Load Attendance</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Roll Number</th>
+                    <th>Status</th>
+                    <th>Lectures (L1..L6)</th>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+                <tr><td colspan="4" style="text-align:center;">Select a date and click Load Attendance.</td></tr>
+            </tbody>
+        </table>
+
+        <!-- Summary -->
+        <div class="summary-box" id="summaryBox" style="display:none;">
+            <div class="summary-card"><span id="sumPresent">0</span><br>Present</div>
+            <div class="summary-card"><span id="sumPartial">0</span><br>Partial</div>
+            <div class="summary-card"><span id="sumAbsent">0</span><br>Absent</div>
+            <div class="summary-card"><span id="sumTotal">0</span><br>Total</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API_BASE_URL = "http://localhost:8000";
+
+function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return `${String(d.getDate()).padStart(2,'0')}_${String(d.getMonth()+1).padStart(2,'0')}_${d.getFullYear()}`;
+}
+
+/* ------------------ Weekly holiday --------------------- */
+function initWeeklyHoliday() {
+    const v = JSON.parse(localStorage.getItem("useSundayHoliday")) ?? true;
+    document.getElementById("sundayCheck").checked = v;
+}
+function saveWeeklyHoliday() {
+    const checked = document.getElementById("sundayCheck").checked;
+    localStorage.setItem("useSundayHoliday", JSON.stringify(checked));
+    alert("Sunday holiday saved!");
+}
+
+/* ------------------ Total semester days --------------------- */
+async function initTotalDays() {
+    const res = await fetch(`${API_BASE_URL}/admin/settings/total_days`);
+    const data = await res.json();
+    document.getElementById("totalDays").value = data.total_days ?? "";
+    document.getElementById("totalDaysInfo").textContent = data.total_days ? `Saved: ${data.total_days}` : "";
+}
+async function saveTotalDays() {
+    const v = document.getElementById("totalDays").value;
+    const form = new FormData();
+    form.append("total_days", v);
+    await fetch(`${API_BASE_URL}/admin/settings/total_days`, { method:"POST", body:form });
+    alert("Total semester days saved!");
+    initTotalDays();
+}
+
+/* ------------------ Load attendance by date --------------------- */
+async function loadData() {
+    const input = document.getElementById("datePicker").value;
+    if (!input) return alert("Please pick a date!");
+
+    const dateKey = formatDate(input);
+    const tbody = document.getElementById("tbody");
+    tbody.innerHTML = "<tr><td colspan=4>Loading...</td></tr>";
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/admin/attendance_by_date?date=${dateKey}`);
+        const data = await res.json();
+        const students = data.students || [];
+        renderTable(students);
+        renderSummary(students);
+    } catch {
+        tbody.innerHTML = "<tr><td colspan=4 style='color:red;'>Network error</td></tr>";
+    }
+}
+
+function renderTable(students) {
+    const tbody = document.getElementById("tbody");
+    if (students.length === 0) {
+        tbody.innerHTML = "<tr><td colspan=4>No records found</td></tr>";
+        return;
+    }
+    tbody.innerHTML = "";
+    let i = 1;
+
+    for (const s of students) {
+        
+        const lec = s.lectures || {};
+        const pills = [];
+        for (let k = 1; k <= 6; k++) {
+            const val = String(lec[`L_${k}`] || "A").toLowerCase();
+            const cls = val === "p" ? "p" : "a";
+            pills.push(`<div class="lec ${cls}">${k}</div>`);
+        }
+        const statusClass = s.status === "present" ? "present" :
+                            s.status === "partial" ? "partial" : "absent";
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${i++}</td>
+                <td>${s.roll_number}</td>
+                <td><span class="pill ${statusClass}">${s.status.toUpperCase()}</span></td>
+                <td><div class="lectures">${pills.join("")}</div></td>
+            </tr>
+        `;
+    }
+}
+
+function renderSummary(students) {
+    const p = students.filter(s => s.status === "present").length;
+    const pt = students.filter(s => s.status === "partial").length;
+    const a = students.filter(s => s.status === "absent").length;
+
+    document.getElementById("sumPresent").textContent = p;
+    document.getElementById("sumPartial").textContent = pt;
+    document.getElementById("sumAbsent").textContent = a;
+    document.getElementById("sumTotal").textContent = students.length;
+
+    document.getElementById("summaryBox").style.display = "flex";
+}
+
+/* INIT */
+initWeeklyHoliday();
+initTotalDays();
+</script>
+
+</body>
+</html>

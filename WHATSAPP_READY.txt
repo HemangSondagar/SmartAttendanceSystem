@@ -1,0 +1,64 @@
+📱 *SMART ATTENDANCE SYSTEM*
+
+*Project Title:*
+Smart Attendance System with Facial Recognition
+
+*Description:*
+Automated attendance system using facial recognition. Features: student registration via webcam, real-time face detection, attendance marking, monthly analytics with graphs/heatmaps, desktop app + web interface.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+*TECHNOLOGIES USED:*
+
+*Desktop App (Kivy):*
+• Python 3.11
+• Kivy & KivyMD (Material Design 3)
+• OpenCV (Computer Vision)
+• DeepFace (Facial Recognition AI)
+• Matplotlib & Seaborn (Graphs/Heatmaps)
+• NumPy (Data Processing)
+• SQLAlchemy & PostgreSQL (Database)
+• Threading (Async Operations)
+
+*Web Frontend:*
+• HTML5, CSS3, JavaScript
+• Fetch API, Canvas API
+
+*Backend API:*
+• FastAPI & Uvicorn
+• SQLAlchemy & PostgreSQL
+• Passlib & Bcrypt (Security)
+• CORS Middleware
+• Pydantic (Validation)
+
+*Database:*
+• PostgreSQL 12+
+• SQLAlchemy ORM
+• JSON Storage
+
+*Visualization:*
+• Matplotlib (Charts)
+• Seaborn (Heatmaps)
+• NumPy (Arrays)
+
+*Additional:*
+• datetime, calendar, io, json
+• subprocess, socket, re
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+*FEATURES:*
+✅ Facial Recognition Attendance
+✅ Student Registration
+✅ Real-time Camera Feed
+✅ Monthly Attendance Graphs
+✅ Heatmap Visualizations
+✅ Multi-lecture Tracking
+✅ Web & Desktop Access
+✅ Admin Dashboard
+✅ Leave Report System
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+

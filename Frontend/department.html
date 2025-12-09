@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Departments</title>
+
+<style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Segoe UI',sans-serif;background:#f5f7fb;padding:20px;color:#2c3e50;}
+    .container{max-width:1200px;margin:auto;}
+
+    .header{
+        background:linear-gradient(135deg,#667eea,#764ba2);
+        color:white;text-align:center;padding:25px;
+        border-radius:14px;margin-bottom:25px;
+        font-size:28px;font-weight:700;
+        box-shadow:0 10px 25px rgba(0,0,0,0.12);
+    }
+
+    .dept-card{
+        background:white;border-radius:14px;padding:22px;
+        box-shadow:0 8px 18px rgba(0,0,0,0.08);
+        margin-bottom:22px;transition:.3s;
+        border-left:7px solid #667eea;
+    }
+    .dept-card:hover{transform:scale(1.02);}
+
+    .dept-title{font-size:22px;font-weight:700;color:#333;margin-bottom:10px;}
+    .desc{font-size:15px;line-height:1.6;margin-bottom:10px;}
+
+    .pill-box{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+    .pill{
+        background:#667eea;color:white;padding:6px 12px;
+        border-radius:20px;font-size:13px;
+        box-shadow:0 4px 10px rgba(102,126,234,0.4);
+    }
+
+    .facility-box{margin-top:12px;}
+    .facility-box span{display:block;margin-top:6px;font-size:14px;}
+
+    .back-btn{
+        display:block;width:200px;margin:30px auto 0;
+        text-align:center;padding:12px;border-radius:10px;
+        color:#667eea;border:2px solid #667eea;
+        font-weight:600;text-decoration:none;transition:.3s;
+    }
+    .back-btn:hover{background:#667eea;color:white;}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">📚 Our Departments</div>
+
+    <!-- BCA -->
+    <div class="dept-card">
+        <div class="dept-title">BCA (Bachelor of Computer Applications)</div>
+        <p class="desc">Focused on computer programming, software development, database management, and new-age technologies like AI & Cloud.</p>
+
+        <b>Technologies You Learn:</b>
+        <div class="pill-box">
+            <div class="pill">JavaScript</div>
+            <div class="pill">Python</div>
+            <div class="pill">HTML/CSS</div>
+            <div class="pill">Database (SQL)</div>
+            <div class="pill">Machine Learning</div>
+            <div class="pill">Cloud Computing</div>
+        </div>
+
+        <div class="facility-box">
+            <b>Facilities:</b>
+            <span>💻 Advanced Computer Lab</span>
+            <span>📶 High-Speed Wifi</span>
+            <span>📙 Project + Internship Support</span>
+        </div>
+    </div>
+
+    <!-- BBA -->
+    <div class="dept-card">
+        <div class="dept-title">BBA (Bachelor of Business Administration)</div>
+        <p class="desc">A professional business and management degree with focus on marketing, finance, HR, business strategy and analytics.</p>
+
+        <b>Skills You Learn:</b>
+        <div class="pill-box">
+            <div class="pill">Marketing</div>
+            <div class="pill">Finance</div>
+            <div class="pill">Business Analytics</div>
+            <div class="pill">Communication Skills</div>
+            <div class="pill">Leadership & HR</div>
+        </div>
+
+        <div class="facility-box">
+            <b>Facilities:</b>
+            <span>🏛 Smart Classroom</span>
+            <span>🗣 Industry Expert Sessions</span>
+            <span>📄 Case Study Based Learning</span>
+        </div>
+    </div>
+
+    <!-- BSC IT -->
+    <div class="dept-card">
+        <div class="dept-title">BSc IT (Information Technology)</div>
+        <p class="desc">Advanced IT course focusing on networking, software engineering, cybersecurity and data analytics.</p>
+
+        <b>Technologies You Learn:</b>
+        <div class="pill-box">
+            <div class="pill">Networking</div>
+            <div class="pill">Cyber Security</div>
+            <div class="pill">Java</div>
+            <div class="pill">Data Analytics</div>
+            <div class="pill">Web Development</div>
+        </div>
+    </div>
+
+    <!-- Add More Departments here -->
+    <!-- MCA, BCom, BA, Diploma etc -->
+
+    <a class="back-btn" href="afterexam.html">← Back to Home</a>
+
+</div>
+
+</body>
+</html>

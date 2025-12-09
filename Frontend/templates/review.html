@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Attendance Review</title>
+
+<style>
+body { font-family: Arial; background:#eef3ff; padding:20px; }
+.container { background:white; padding:20px; border-radius:12px; width:850px; margin:auto; box-shadow:0 0 10px #0003; }
+table { width:100%; margin-top:20px; border-collapse:collapse; }
+td, th { border:1px solid #bbb; padding:10px; text-align:center; }
+button, select, input { padding:8px; font-size:16px; margin:4px; }
+.present { color:green; font-weight:bold; }
+.absent { color:red; font-weight:bold; }
+</style>
+
+</head>
+<body>
+
+<div class="container">
+<h2>Review Attendance</h2>
+
+<input type="date" id="dt">
+<select id="lec">
+    <option selected disabled>Select Lecture</option>
+    <option value="1">L1</option>
+    <option value="2">L2</option>
+    <option value="3">L3</option>
+    <option value="4">L4</option>
+    <option value="5">L5</option>
+    <option value="6">L6</option>
+    <option value="7">L7</option>
+</select>
+
+<button onclick="loadData()">Load</button>
+
+<table id="tbl">
+<tr><th>Roll</th><th>Status</th><th>Change</th></tr>
+</table>
+
+<br>
+<button onclick="submitData()">Submit</button>
+
+</div>
+
+<script>
+let globalData = [];
+
+function makeTableName() {
+    let d = document.getElementById("dt").value;
+    if (!d) return null;
+
+    let dt = new Date(d);
+    let dd = String(dt.getDate()).padStart(2, "0");
+    let mm = String(dt.getMonth() + 1).padStart(2, "0");
+    let yy = dt.getFullYear();
+
+    return `date${dd}_${mm}_${yy}`;
+}
+
+function loadData() {
+    let table = makeTableName();
+    let lec = document.getElementById("lec").value;
+
+    if (!table || !lec) {
+        alert("Select date & lecture");
+        return;
+    }
+
+    fetch(`http://127.0.0.1:8001/get_attendance/${table}/${lec}`)
+    .then(r => r.json())
+    .then(data => {
+        globalData = data;
+        let t = document.getElementById("tbl");
+        t.innerHTML = `<tr><th>Roll</th><th>Status</th><th>Change</th></tr>`;
+
+        data.forEach(s => {
+            t.innerHTML += `
+            <tr>
+                <td>${s.roll}</td>
+                <td id="s${s.roll}" class="${s.status=='Present'?'present':'absent'}">${s.status}</td>
+                <td>
+                    <select onchange="setStatus(${s.roll}, this.value)">
+                        <option ${s.status=='Present'?'selected':''}>Present</option>
+                        <option ${s.status=='Absent'?'selected':''}>Absent</option>
+                    </select>
+                </td>
+            </tr>`;
+        });
+    });
+}
+
+function setStatus(roll, status) {
+    document.getElementById("s" + roll).innerHTML = status;
+    document.getElementById("s" + roll).className = (status == "Present") ? "present" : "absent";
+
+    globalData = globalData.map(x => x.roll == roll ? { roll, status } : x);
+}
+
+function submitData() {
+    let table = makeTableName();
+    let lecture = document.getElementById("lec").value;
+
+    fetch("http://127.0.0.1:8001/submit_attendance", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            table,
+            lecture,
+            records: globalData
+        })
+    })
+    .then(r => r.json())
+    .then(msg => alert("Updated!"))
+    .catch(err => alert("ERROR: " + err));
+}
+</script>
+
+</body>
+</html>
+ 
