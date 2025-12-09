@@ -1,140 +1,46 @@
-from fastapi import FastAPI, Form, HTTPException
-```pip-requirements
-from fastapi import FastAPI, Form, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.orm import sessionmaker, declarative_base
-from passlib.context import CryptContext
+# Project-wide Python dependencies for SmartAttendanceSystem
+# Install with: python -m pip install -r requirements.txt
 
-DATABASE_URL = "postgresql+psycopg2://postgres:Hemang812@127.0.0.1:5432/attandance_app"
+# FastAPI web apps
+fastapi
+uvicorn[standard]
 
-# Database setup
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+# Database and ORM
+SQLAlchemy
+psycopg2-binary
+passlib[bcrypt]
 
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# FastAPI extras
 
-# User model
-class User(Base):
-	__tablename__ = "users"
-	id = Column(Integer, primary_key=True, index=True)
-	name = Column(String, nullable=False)
-	roll_number = Column(String, unique=True, nullable=False)
-	password = Column(String, nullable=False)
+pydantic
+python-multipart
+Jinja2
 
-Base.metadata.create_all(bind=engine)
+# HTTP / utilities
+requests
 
-app = FastAPI()
+# Kivy GUI and extensions
+kivy
+kivymd
 
-# Allow frontend
-app.add_middleware(
-	CORSMiddleware,
-	allow_origins=["*"],  # change to ["http://localhost:5500"] if using Live Server
-	allow_credentials=True,
-	allow_methods=["*"],
-	allow_headers=["*"],
-)
+# Computer vision / face recognition
+opencv-python
+deepface
+mtcnn
+joblib
+tensorflow
 
-# Signup route
-@app.post("/signup")
-def signup(name: str = Form(...), roll_number: str = Form(...), password: str = Form(...)):
-	db = SessionLocal()
-	hashed_pw = pwd_context.hash(password)
-	new_user = User(name=name, roll_number=roll_number, password=hashed_pw)
-	db.merge(new_user)   # 👈 this replaces existing user if roll_number exists
-	db.commit()
-	db.close()
-	return {"message": "User registered successfully"}
+# Scientific / plotting
+numpy
+matplotlib
+seaborn
+plotly
+Pillow
 
+# Misc
+python-dotenv
 
-# Login route
-@app.post("/login")
-def login(roll_number: str = Form(...), password: str = Form(...)):
-	db = SessionLocal()
-	user = db.query(User).filter(User.roll_number == roll_number).first()
-	db.close()
-	if not user or not pwd_context.verify(password, user.password):
-		raise HTTPException(status_code=401, detail="Invalid roll number or password")
-	return {"message": "Login successful"}
-
-
-
-
-
-from fastapi import FastAPI, Form, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.orm import sessionmaker, declarative_base
-from passlib.context import CryptContext
-
-DATABASE_URL = "postgresql+psycopg2://postgres:Hemang812@127.0.0.1:5432/attandance_app"
-
-# Database setup
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# User model
-class User(Base):
-	__tablename__ = "users"
-	id = Column(Integer, primary_key=True, index=True)
-	name = Column(String, nullable=False)
-	roll_number = Column(String, unique=True, nullable=False)
-	password = Column(String, nullable=False)
-
-Base.metadata.create_all(bind=engine)
-
-app = FastAPI()
-
-# Allow frontend
-app.add_middleware(
-	CORSMiddleware,
-	allow_origins=["*"],  # change to ["http://localhost:5500"] if using Live Server
-	allow_credentials=True,
-	allow_methods=["*"],
-	allow_headers=["*"],
-)
-
-# Signup route
-@app.post("/signup")
-def signup(name: str = Form(...), roll_number: str = Form(...), password: str = Form(...)):
-	db = SessionLocal()
-	hashed_pw = pwd_context.hash(password)
-	new_user = User(name=name, roll_number=roll_number, password=hashed_pw)
-	db.merge(new_user)   # 👈 this replaces existing user if roll_number exists
-	db.commit()
-	db.close()
-	return {"message": "User registered successfully"}
-
-
-# Login route
-@app.post("/login")
-def login(roll_number: str = Form(...), password: str = Form(...)):
-	db = SessionLocal()
-	user = db.query(User).filter(User.roll_number == roll_number).first()
-	db.close()
-	if not user or not pwd_context.verify(password, user.password):
-		raise HTTPException(status_code=401, detail="Invalid roll number or password")
-	return {"message": "Login successful"}
-
-
-
-
-    
-```
-# Database setup
-
-engine = create_engine(DATABASE_URL)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
-
-
-
-# Password hashing
+# Notes:
+# - Installing `tensorflow` on Windows may require choosing the appropriate
+#   CPU/GPU wheel for your system. If you only need DeepFace for small tests,
+#   consider `pip install tensorflow-cpu` to avoid GPU toolchain issues.from fastapi import FastAPI, Form, HTTPException
